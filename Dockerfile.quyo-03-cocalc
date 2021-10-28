@@ -1,4 +1,4 @@
-FROM quyo/cocalc-sagemath
+FROM cocalc-sagemath:latest
 
 MAINTAINER Markus John <johm@quyo.de>
 
@@ -20,8 +20,8 @@ RUN \
      pip3 install octave_kernel \
   && rm -rf /usr/local/share/jupyter/kernels/octave
 
-# Pari/GP kernel support
-RUN sage --pip install pari_jupyter
+# Pari/GP kernel support (fails)
+#RUN sage --pip install pari_jupyter
 
 # Install LEAN proof assistant
 RUN \

@@ -93,6 +93,78 @@ RUN \
        r-cran-formatr \
        yasm
 
+#
+# adapt to quyo-build
+#
+RUN \
+   apt-get update \
+&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       binutils \
+       bzip2 \
+       ca-certificates \
+       curl \
+       gfortran \
+       graphviz \
+       libatomic-ops-dev \
+       libboost-dev \
+       libbz2-dev \
+       libcurl4-openssl-dev \
+       libffi-dev \
+       libfile-slurp-perl \
+       libfreetype6-dev \
+       libgc-dev \
+       libgd-dev libgmp-dev \
+       libigraph-dev \
+       libjson-perl \
+       liblzma-dev \
+       libmongodb-perl \
+       libmpc-dev \
+       libmpfi-dev \
+       libmpfr-dev \
+       libncurses5-dev \
+       libpcre3-dev \
+       libperl-dev \
+       libpython3-dev \
+       libreadline-dev \
+       libsqlite3-dev \
+       libssl-dev \
+       libsvg-perl \
+       libterm-readkey-perl \
+       libterm-readline-gnu-perl \
+       libxml-libxslt-perl \
+       libxml-writer-perl \
+       libxml2-dev \
+       libz-dev \
+       libzmq3-dev \
+       m4 \
+       make \
+       openssl \
+       pandoc \
+       patch \
+       perl \
+       pkg-config \
+       python3 \
+       python3-distutils \
+       sqlite3 \
+       tar \
+       xz-utils \
+       yasm \
+       texlive \
+       texlive-xetex \
+       texlive-full \
+       latexmk \
+       dvipng \
+       default-jdk \
+       ffmpeg \
+       libavdevice-dev \
+       tk \
+       tk-dev \
+       gettext \
+       pkg-config
+
+RUN \
+   DEBIAN_FRONTEND=noninteractive apt-get clean -y
+
 
 CMD /usr/bin/env bash
 
