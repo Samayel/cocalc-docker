@@ -1,4 +1,4 @@
-FROM cocalc-base:latest
+FROM quyo/cocalc-base:latest
 
 MAINTAINER Markus John <johm@quyo.de>
 
