@@ -179,9 +179,7 @@ RUN \
   && apt-get update \
   && apt-get install -y  postgresql-10
 
-CMD /root/run.py
 
-ARG BUILD_DATE
-LABEL org.label-schema.build-date=$BUILD_DATE
+CMD /root/run.py
 
 EXPOSE 22 80 443

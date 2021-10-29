@@ -11,37 +11,23 @@ ENV LANGUAGE en_US:en
 ENV TERM screen
 
 
-# Build and install Sage -- see https://github.com/sagemath/docker-images
 COPY scripts/ /usr/sage-install-scripts/
-RUN chmod -R a+rx /usr/sage-install-scripts/
 
-RUN    adduser --quiet --shell /bin/bash --gecos "Sage user,101,," --disabled-password sage \
-    && chown -R sage:sage /home/sage/
-
-# make source checkout target, then run the install script
-# see https://github.com/docker/docker/issues/9547 for the sync
-# Sage can't be built as root, for reasons...
-# Here -E inherits the environment from root, however it's important to
-# include -H to set HOME=/home/sage, otherwise DOT_SAGE will not be set
-# correctly and the build will fail!
-RUN    mkdir -p /usr/local/sage \
-    && chown -R sage:sage /usr/local/sage \
-    && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.4 \
-    && sync
-
-RUN /usr/sage-install-scripts/post_install_sage.sh /usr/local/ && rm -rf /tmp/* && sync
-
-# Install SageTex
 RUN \
-     sudo -H -E -u sage sage -p sagetex \
-  && cp -rv /usr/local/sage/local/share/texmf/tex/latex/sagetex/ /usr/share/texmf/tex/latex/ \
-  && texhash
-
-# Save nearly 5GB -- only do after installing all sage stuff!:
-RUN rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
+    chmod -R a+rx /usr/sage-install-scripts/ \
+ && adduser --quiet --shell /bin/bash --gecos "Sage user,101,," --disabled-password sage \
+ && chown -R sage:sage /home/sage/ \
+ && mkdir -p /usr/local/sage \
+ && chown -R sage:sage /usr/local/sage \
+ && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.4 \
+ && sync \
+ && /usr/sage-install-scripts/post_install_sage.sh /usr/local/ \
+ && rm -rf /tmp/* \
+ && sync \
+ && sudo -H -E -u sage sage -p sagetex \
+ && cp -rv /usr/local/sage/local/share/texmf/tex/latex/sagetex/ /usr/share/texmf/tex/latex/ \
+ && texhash \
+ && rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
 
 
 CMD /usr/bin/env bash
-
-ARG BUILD_DATE
-LABEL org.label-schema.build-date=$BUILD_DATE

@@ -12,12 +12,11 @@ ENV TERM screen
 
 
 # So we can source (see http://goo.gl/oBPi5G)
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-# Ubuntu software that are used by CoCalc (latex, pandoc, sage)
 RUN \
-     apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+    rm /bin/sh \
+ && ln -s /bin/bash /bin/sh \
+ && apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y \
        software-properties-common \
        texlive \
        texlive-latex-extra \
@@ -25,11 +24,7 @@ RUN \
        texlive-xetex \
        texlive-luatex \
        texlive-bibtex-extra \
-       liblog-log4perl-perl
-
-RUN \
-    apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       liblog-log4perl-perl \
        tmux \
        flex \
        bison \
@@ -50,11 +45,7 @@ RUN \
        sudo \
        psmisc \
        rsync \
-       tidy
-
- RUN \
-     apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       tidy \
        vim \
        inetutils-ping \
        lynx \
@@ -69,11 +60,7 @@ RUN \
        libpq-dev \
        build-essential \
        automake \
-       jq
-
-RUN \
-   apt-get update \
-&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       jq \
        gfortran \
        dpkg-dev \
        libssl-dev \
@@ -91,14 +78,7 @@ RUN \
        yapf3 \
        golang \
        r-cran-formatr \
-       yasm
-
-#
-# adapt to quyo-build
-#
-RUN \
-   apt-get update \
-&& DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       yasm \
        binutils \
        bzip2 \
        ca-certificates \
@@ -160,13 +140,11 @@ RUN \
        tk \
        tk-dev \
        gettext \
-       pkg-config
-
-RUN \
-   DEBIAN_FRONTEND=noninteractive apt-get clean -y
+       pkg-config \
+       joe \
+       nano \
+       mc \
+ && DEBIAN_FRONTEND=noninteractive apt-get clean -y
 
 
 CMD /usr/bin/env bash
-
-ARG BUILD_DATE
-LABEL org.label-schema.build-date=$BUILD_DATE
