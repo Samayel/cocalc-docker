@@ -28,6 +28,3 @@ RUN \
  && cp -rv /usr/local/sage/local/share/texmf/tex/latex/sagetex/ /usr/share/texmf/tex/latex/ \
  && texhash \
  && rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
-
-
-CMD /usr/bin/env bash

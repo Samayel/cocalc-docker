@@ -11,7 +11,9 @@ ENV LANGUAGE en_US:en
 ENV TERM screen
 
 
-RUN apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
+RUN \
+     apt-get update \
+  && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
 
 # install the Octave kernel.
 # NOTE: we delete the spec file and use our own spec for the octave kernel, since the
