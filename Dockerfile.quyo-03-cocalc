@@ -184,6 +184,13 @@ RUN \
   && apt-get install -y  postgresql-10
 
 
+# Wolfram Language kernel for Jupyter notebooks
+RUN \
+     umask 022 \
+  && cd /opt \
+  && git clone https://github.com/WolframResearch/WolframLanguageForJupyter.git
+
+
 CMD /root/run.py
 
 EXPOSE 22 80 443
