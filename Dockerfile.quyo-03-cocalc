@@ -11,9 +11,9 @@ ENV LANGUAGE en_US:en
 ENV TERM screen
 
 
-RUN \
-     apt-get update \
-  && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
+# Important: do not try to install these directly from pypi, since usually (and strangely?)
+# what is posted to Pypi is broken.  Yes, I learned the hard way.
+RUN apt-get update && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
 
 # install the Octave kernel.
 # NOTE: we delete the spec file and use our own spec for the octave kernel, since the
@@ -22,8 +22,9 @@ RUN \
      pip3 install octave_kernel \
   && rm -rf /usr/local/share/jupyter/kernels/octave
 
-# Pari/GP kernel support (fails)
-#RUN sage --pip install pari_jupyter
+# Pari/GP kernel support
+# Commented out since it doesn't build anymore with newer Sage, evidently...
+# RUN sage --pip install pari_jupyter
 
 # Install LEAN proof assistant
 RUN \
@@ -63,11 +64,30 @@ RUN \
 # Install Julia
 ARG JULIA=1.6.3
 RUN cd /tmp \
- && wget https://julialang-s3.julialang.org/bin/linux/x64/${JULIA%.*}/julia-${JULIA}-linux-x86_64.tar.gz \
- && tar xf julia-${JULIA}-linux-x86_64.tar.gz -C /opt \
- && rm  -f julia-${JULIA}-linux-x86_64.tar.gz \
+ && export ARCH1=`uname -m | sed s/x86_64/x64/` \
+ && export ARCH2=`uname -m` \
+ && wget -q https://julialang-s3.julialang.org/bin/linux/${ARCH1}/${JULIA%.*}/julia-${JULIA}-linux-${ARCH2}.tar.gz \
+ && tar xf julia-${JULIA}-linux-${ARCH2}.tar.gz -C /opt \
+ && rm  -f julia-${JULIA}-linux-${ARCH2}.tar.gz \
  && mv /opt/julia-* /opt/julia \
  && ln -s /opt/julia/bin/julia /usr/local/bin
+
+# Quick test that Julia actually works (i.e., we installed the right binary above).
+RUN echo '2+3' | julia
+
+# Install IJulia kernel
+# I figured out the dierectory /opt/julia/local/share/julia by inspecting the global varaible
+# DEPOT_PATH from within a running Julia session as a normal user, and also reading julia docs:
+#    https://pkgdocs.julialang.org/v1/glossary/
+# It was *incredibly* confusing, and the dozens of discussions of this problem that one finds
+# via Google are all very wrong, incomplete, misleading, etc.  It's truly amazing how
+# disorganized-wrt-Google information about Julia is, as compared to Node.js and Python.
+RUN echo 'using Pkg; Pkg.add("IJulia");' | JUPYTER=/usr/local/bin/jupyter JULIA_DEPOT_PATH=/opt/julia/local/share/julia JULIA_PKG=/opt/julia/local/share/julia julia
+RUN mv "$HOME/.local/share/jupyter/kernels/julia"* "/usr/local/share/jupyter/kernels/"
+
+# Also add Pluto system-wide, since we'll likely support it soon in cocalc, and also
+# Nemo and Hecke (some math software).
+RUN echo 'using Pkg; Pkg.add("Pluto"); Pkg.add("Nemo"); Pkg.add("Hecke")' | JULIA_DEPOT_PATH=/opt/julia/local/share/julia JULIA_PKG=/opt/julia/local/share/julia julia
 
 # Install R Jupyter Kernel package into R itself (so R kernel works), and some other packages e.g., rmarkdown which requires reticulate to use Python.
 RUN echo "install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ', 'httr', 'devtools', 'uuid', 'digest', 'IRkernel', 'formatR'), repos='https://cloud.r-project.org')" | sage -R --no-save
@@ -76,7 +96,7 @@ RUN echo "install.packages(c('repr', 'IRdisplay', 'evaluate', 'crayon', 'pbdZMQ'
 # Xpra backend support -- we have to use the debs from xpra.org,
 RUN \
      apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install -y xvfb xsel websockify curl xpra
+  && DEBIAN_FRONTEND=noninteractive apt-get install -y xvfb xsel websockify xpra
 
 # X11 apps to make x11 support useful.
 RUN \
@@ -89,9 +109,10 @@ RUN \
 # See https://github.com/cdr/code-server/releases for VERSION.
 RUN \
      export VERSION=3.12.0 \
-  && curl -fOL https://github.com/cdr/code-server/releases/download/v$VERSION/code-server_"$VERSION"_amd64.deb \
-  && dpkg -i code-server_"$VERSION"_amd64.deb \
-  && rm code-server_"$VERSION"_amd64.deb
+  && export ARCH=`uname -m | sed s/aarch64/arm64/ | sed s/x86_64/amd64/` \
+  && curl -fOL https://github.com/cdr/code-server/releases/download/v$VERSION/code-server_"$VERSION"_"$ARCH".deb \
+  && dpkg -i code-server_"$VERSION"_"$ARCH".deb \
+  && rm code-server_"$VERSION"_"$ARCH".deb
 
 
 # Commit to checkout and build.
@@ -110,12 +131,6 @@ RUN umask 022 && pip3 install --upgrade /cocalc/src/smc_pyutil/
 # Install code into Sage
 RUN umask 022 && sage -pip install --upgrade /cocalc/src/smc_sagews/
 
-# Build cocalc itself
-RUN umask 022 && cd /cocalc/src && npm run make
-
-# And cleanup npm cache, which is several hundred megabytes after building cocalc above.
-RUN rm -rf /root/.npm
-
 RUN echo "umask 077" >> /etc/bash.bashrc
 
 # Install some Jupyter kernel definitions
@@ -127,23 +142,6 @@ COPY kernels/ir/Rprofile.site /usr/local/sage/local/lib/R/etc/Rprofile.site
 # Build a UTF-8 locale, so that tmux works -- see https://unix.stackexchange.com/questions/277909/updated-my-arch-linux-server-and-now-i-get-tmux-need-utf-8-locale-lc-ctype-bu
 RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && locale-gen
 
-# Install IJulia kernel
-# I figured out the dierectory /opt/julia/local/share/julia by inspecting the global varaible
-# DEPOT_PATH from within a running Julia session as a normal user, and also reading julia docs:
-#    https://pkgdocs.julialang.org/v1/glossary/
-# It was *incredibly* confusing, and the dozens of discussions of this problem that one finds
-# via Google are all very wrong, incomplete, misleading, etc.  It's truly amazing how 
-# disorganized-wrt-Google information about Julia is, as compared to Node.js and Python. 
-RUN echo 'using Pkg; Pkg.add("IJulia");' | JUPYTER=/usr/local/bin/jupyter JULIA_DEPOT_PATH=/opt/julia/local/share/julia JULIA_PKG=/opt/julia/local/share/julia julia
-RUN mv "$HOME/.local/share/jupyter/kernels/julia"* "/usr/local/share/jupyter/kernels/"
-
-# Also add Pluto system-wide, since we'll likely support it soon in cocalc, and also
-# Nemo and Hecke (some math software).
-RUN echo 'using Pkg; Pkg.add("Pluto"); Pkg.add("Nemo"); Pkg.add("Hecke")' | JULIA_DEPOT_PATH=/opt/julia/local/share/julia JULIA_PKG=/opt/julia/local/share/julia julia
-
-RUN chmod 755 /opt/julia/local/share/julia/registries/General/
-
-
 # Configuration
 
 COPY login.defs /etc/login.defs
@@ -152,7 +150,7 @@ COPY run.py /root/run.py
 COPY bashrc /root/.bashrc
 
 
-# CoCalc Jupyter widgets
+# CoCalc Jupyter widgets rely on these:
 RUN \
   pip3 install --no-cache-dir ipyleaflet
 
@@ -172,17 +170,17 @@ RUN ln -sf /usr/bin/yapf3 /usr/bin/yapf
 RUN \
   pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq
 
-# We stick with PostgreSQL 10 for now, to avoid any issues with users having to
-# update to an incompatible version 12.  We don't use postgresql-12 features *yet*,
-# and won't upgrade until we need to or it becomes a security liability.  Note that
-# PostgreSQL 10 is officially supported until November 10, 2022 according to
-# https://www.postgresql.org/support/versioning/
-RUN \
-     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
-  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
-  && apt-get update \
-  && apt-get install -y  postgresql-10
+# Build cocalc itself.
+RUN umask 022 \
+  && cd /cocalc/src \
+  && npm run make
 
+# And cleanup npm cache, which is several hundred megabytes after building cocalc above.
+RUN rm -rf /root/.npm
+
+
+
+RUN chmod 755 /opt/julia/local/share/julia/registries/General/
 
 # Wolfram Language kernel for Jupyter notebooks
 RUN \

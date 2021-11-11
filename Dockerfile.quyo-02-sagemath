@@ -19,12 +19,12 @@ RUN \
  && chown -R sage:sage /home/sage/ \
  && mkdir -p /usr/local/sage \
  && chown -R sage:sage /usr/local/sage \
- && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.4 \
+ && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.5.beta5 \
  && sync \
  && /usr/sage-install-scripts/post_install_sage.sh /usr/local/ \
  && rm -rf /tmp/* \
  && sync \
  && sudo -H -E -u sage sage -p sagetex \
- && cp -rv /usr/local/sage/local/share/texmf/tex/latex/sagetex/ /usr/share/texmf/tex/latex/ \
+ && cp -rv /usr/local/sage/local/var/lib/sage/venv-python*/share/texmf/tex/latex/sagetex/ /usr/share/texmf/tex/latex/ \
  && texhash \
  && rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
