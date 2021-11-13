@@ -109,6 +109,7 @@ make configure
     --enable-pycosat                            \
     --enable-pynormaliz                         \
     --enable-pysingular                         \
+    --enable-python_igraph                      \
     --enable-qhull                              \
     --enable-r_jupyter                          \
     --enable-rst2ipynb                          \
@@ -117,6 +118,7 @@ make configure
     --enable-sage_numerical_backends_coin       \
     --enable-sage_sws2rst                       \
     --enable-singular_jupyter                   \
+    --enable-sip                                \
     --enable-sirocco                            \
     --enable-speaklater                         \
     --enable-symengine                          \
@@ -136,9 +138,7 @@ make configure
 #   --enable-jupymake                           \
 #   --enable-p_group_cohomology                 \
 #   --enable-polytopes_db_4d                    \
-#   --enable-python_igraph                      \
 #   --enable-scipoptsuite                       \
-#   --enable-sip                                \
 #   --enable-texlive                            \
 
 make
@@ -153,7 +153,7 @@ make
 ./sage -i pybtex
 ./sage -i pyflakes
 # ./sage -i pygraphviz
-# ./sage -i pyopenssl
+./sage -i pyopenssl
 ./sage -i pytest
 ./sage -i pyx
 ./sage -i sage_flatsurf

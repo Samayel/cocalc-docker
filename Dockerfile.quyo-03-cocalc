@@ -182,6 +182,9 @@ RUN rm -rf /root/.npm
 
 RUN chmod 755 /opt/julia/local/share/julia/registries/General/
 
+RUN \
+  pip3 install --no-cache-dir jupyterlab zig
+
 # Wolfram Language kernel for Jupyter notebooks
 RUN \
      umask 022 \
