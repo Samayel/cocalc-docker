@@ -193,9 +193,6 @@ RUN rm -rf /root/.npm
 
 
 
-# Fix julia
-# RUN chmod 755 /opt/julia/local/share/julia/registries/General/
-
 # Install JupyterLab
 RUN \
   pip3 install --no-cache-dir jupyterlab
