@@ -1,4 +1,5 @@
-FROM ubuntu:20.04
+ARG MYAPP_IMAGE=ubuntu:20.04
+FROM $MYAPP_IMAGE
 
 MAINTAINER William Stein <wstein@sagemath.com>
 
@@ -131,7 +132,7 @@ RUN    adduser --quiet --shell /bin/bash --gecos "Sage user,101,," --disabled-pa
 # correctly and the build will fail!
 RUN    mkdir -p /usr/local/sage \
     && chown -R sage:sage /usr/local/sage \
-    && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.5.beta7 \
+    && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.5 \
     && sync
 
 RUN /usr/sage-install-scripts/post_install_sage.sh /usr/local/ && rm -rf /tmp/* && sync
@@ -149,7 +150,7 @@ RUN rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
 
 # Important: do not try to install these directly from pypi, since usually (and strangely?)
 # what is posted to Pypi is broken.  Yes, I learned the hard way.
-RUN apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
+RUN apt-get update && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
 
 # install the Octave kernel.
 # NOTE: we delete the spec file and use our own spec for the octave kernel, since the
@@ -263,22 +264,6 @@ RUN \
   && rm code-server_"$VERSION"_"$ARCH".deb
 
 
-# Commit to checkout and build.
-ARG BRANCH=master
-ARG commit=HEAD
-
-# Pull latest source code for CoCalc and checkout requested commit (or HEAD),
-# install our Python libraries globally, then remove cocalc.  We only need it
-# for installing these Python libraries (TODO: move to pypi?).
-RUN \
-     umask 022 && git clone --depth=1 https://github.com/sagemathinc/cocalc.git \
-  && cd /cocalc && git pull && git fetch -u origin $BRANCH:$BRANCH && git checkout ${commit:-HEAD}
-
-RUN umask 022 && pip3 install --upgrade /cocalc/src/smc_pyutil/
-
-# Install code into Sage
-RUN umask 022 && sage -pip install --upgrade /cocalc/src/smc_sagews/
-
 RUN echo "umask 077" >> /etc/bash.bashrc
 
 # Install some Jupyter kernel definitions
@@ -317,6 +302,22 @@ RUN ln -sf /usr/bin/yapf3 /usr/bin/yapf
 # NOTE: Upgrading zmq is very important, or the Ubuntu version breaks everything..
 RUN \
   pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq
+
+# Commit to checkout and build.
+ARG BRANCH=master
+ARG commit=HEAD
+
+# Pull latest source code for CoCalc and checkout requested commit (or HEAD),
+# install our Python libraries globally, then remove cocalc.  We only need it
+# for installing these Python libraries (TODO: move to pypi?).
+RUN \
+     umask 022 && git clone --depth=1 https://github.com/sagemathinc/cocalc.git \
+  && cd /cocalc && git pull && git fetch -u origin $BRANCH:$BRANCH && git checkout ${commit:-HEAD}
+
+RUN umask 022 && pip3 install --upgrade /cocalc/src/smc_pyutil/
+
+# Install code into Sage
+RUN umask 022 && sage -pip install --upgrade /cocalc/src/smc_sagews/
 
 # Build cocalc itself.
 RUN umask 022 \
