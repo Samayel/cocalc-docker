@@ -1,4 +1,4 @@
-FROM quyo/wolframengine:13.0.0-20.04
+FROM quyo/wolframengine:13.0.1-20.04
 
 MAINTAINER Markus John <johm@quyo.de>
 
