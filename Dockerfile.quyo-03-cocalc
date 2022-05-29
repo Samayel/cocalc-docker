@@ -168,7 +168,7 @@ RUN \
 
 # Commit to checkout and build.
 ARG BRANCH=master
-ARG commit=28b11e20c1a6bf21e58d8be32ae42e732d2928ad
+ARG commit=c8a2c9acb1061631f354896f488adbdf0427c2a1
 
 # Pull latest source code for CoCalc and checkout requested commit (or HEAD),
 # install our Python libraries globally, then remove cocalc.  We only need it

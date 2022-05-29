@@ -15,10 +15,20 @@ run-light:
 
 
 build-qbase:
-	docker build --no-cache -t cocalc-base -f Dockerfile.quyo-01-base .
+	docker build -t cocalc-base -f Dockerfile.quyo-01-base .
 
 build-qsagemath:
-	docker build --no-cache -t cocalc-sagemath -f Dockerfile.quyo-02-sagemath .
+	docker build -t cocalc-sagemath -f Dockerfile.quyo-02-sagemath .
 
 build-qcocalc:
+	docker build -t cocalc -f Dockerfile.quyo-03-cocalc .
+
+
+build-full-qbase:
+	docker build --no-cache -t cocalc-base -f Dockerfile.quyo-01-base .
+
+build-full-qsagemath:
+	docker build --no-cache -t cocalc-sagemath -f Dockerfile.quyo-02-sagemath .
+
+build-full-qcocalc:
 	docker build --no-cache -t cocalc -f Dockerfile.quyo-03-cocalc .

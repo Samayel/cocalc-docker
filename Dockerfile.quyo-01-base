@@ -17,6 +17,7 @@ RUN \
     rm /bin/sh \
  && ln -s /bin/bash /bin/sh \
  && apt-get update \
+ && apt-get upgrade -y \
  && apt-get install -y \
        software-properties-common \
        texlive \
@@ -40,7 +41,7 @@ RUN \
        curl \
        git \
        python3 \
-       python \
+       python2 \
        python3-pip \
        make \
        g++ \
