@@ -75,7 +75,6 @@ make configure
     --enable-gap_jupyter                        \
     --enable-gap_packages                       \
     --enable-glucose                            \
-    --enable-gp2c                               \
     --enable-graphviz                           \
     --enable-igraph                             \
     --enable-ipympl                             \
@@ -132,6 +131,7 @@ make configure
 #   --enable-database_odlyzko_zeta              \
 #   --enable-database_stein_watkins_mini        \
 #   --enable-database_symbolic_data             \
+#   --enable-gp2c                               \
 #   --enable-jupymake                           \
 #   --enable-p_group_cohomology                 \
 #   --enable-polytopes_db_4d                    \

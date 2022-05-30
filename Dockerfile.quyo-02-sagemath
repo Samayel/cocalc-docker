@@ -1,4 +1,4 @@
-FROM quyo/cocalc-base:20.04
+FROM quyo/cocalc-base:22.04
 
 MAINTAINER Markus John <johm@quyo.de>
 
