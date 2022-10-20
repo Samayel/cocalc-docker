@@ -1,4 +1,4 @@
-ARG MYAPP_IMAGE=ubuntu:20.04
+ARG MYAPP_IMAGE=ubuntu:22.04
 FROM $MYAPP_IMAGE
 
 MAINTAINER William Stein <wstein@sagemath.com>
@@ -45,7 +45,7 @@ RUN \
        curl \
        git \
        python3 \
-       python \
+       python2 \
        python3-pip \
        make \
        g++ \
@@ -76,6 +76,7 @@ RUN \
 RUN \
    apt-get update \
 && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+       cmake \
        gfortran \
        dpkg-dev \
        libssl-dev \
@@ -90,8 +91,14 @@ RUN \
        clang-format \
        yapf3 \
        golang \
-       r-cran-formatr \
-       yasm
+       yasm \
+       texinfo \
+       python-is-python3 \
+       autotools-dev \
+       libtool \
+       tcl \
+       vim \
+       zip
 
 # We stick with PostgreSQL 10 for now, to avoid any issues with users having to
 # update to an incompatible version 12.  We don't use postgresql-12 features *yet*,
@@ -104,6 +111,11 @@ RUN \
   && apt-get update \
   && apt-get install -y  postgresql-10
 
+
+# Install the R statistical software.
+RUN \
+    apt-get update \
+&& apt-get install -y r-base
 
 # These are specifically packages that we install since building them as
 # part of Sage can be problematic (e.g., on aarch64).  Dima encouraged me
@@ -132,7 +144,7 @@ RUN    adduser --quiet --shell /bin/bash --gecos "Sage user,101,," --disabled-pa
 # correctly and the build will fail!
 RUN    mkdir -p /usr/local/sage \
     && chown -R sage:sage /usr/local/sage \
-    && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.6 \
+    && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.7 \
     && sync
 
 RUN /usr/sage-install-scripts/post_install_sage.sh /usr/local/ && rm -rf /tmp/* && sync
@@ -148,9 +160,13 @@ RUN \
 # Save nearly 5GB -- only do after installing all sage stuff!:
 RUN rm -rf /usr/local/sage/build/pkgs/sagelib/src/build
 
-# Important: do not try to install these directly from pypi, since usually (and strangely?)
-# what is posted to Pypi is broken.  Yes, I learned the hard way.
-RUN apt-get update && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
+# Try to install from pypi again to get better control over versions.
+# - ipywidgets<8 is because of https://github.com/sagemathinc/cocalc/issues/6128
+# - jupyter-client<7 is because of https://github.com/sagemathinc/cocalc/issues/5715
+RUN pip3 install pyyaml matplotlib jupyter jupyterlab "ipywidgets<8" "jupyter-client<7"
+
+# The python3 kernel that gets installed is broken, and we don't need it
+RUN rm -rf /usr/local/share/jupyter/kernels/python3
 
 # install the Octave kernel.
 # NOTE: we delete the spec file and use our own spec for the octave kernel, since the
@@ -160,7 +176,8 @@ RUN \
   && rm -rf /usr/local/share/jupyter/kernels/octave
 
 # Pari/GP kernel support
-# Commented out since it doesn't build anymore with newer Sage, evidently...
+# This does build fine, but I'm not sure what it produces or where or how
+# to make it available.
 # RUN sage --pip install pari_jupyter
 
 # Install LEAN proof assistant
@@ -182,7 +199,7 @@ RUN \
   && apt-get install -y aspell-*
 
 RUN \
-     wget -qO- https://deb.nodesource.com/setup_14.x | bash - \
+     wget -qO- https://deb.nodesource.com/setup_16.x | bash - \
   && apt-get install -y nodejs libxml2-dev libxslt-dev \
   && /usr/bin/npm install -g npm
 
@@ -199,7 +216,7 @@ RUN \
 #  && its --install=global
 
 # Install Julia
-ARG JULIA=1.6.3
+ARG JULIA=1.8.1
 RUN cd /tmp \
  && export ARCH1=`uname -m | sed s/x86_64/x64/` \
  && export ARCH2=`uname -m` \
@@ -213,7 +230,7 @@ RUN cd /tmp \
 RUN echo '2+3' | julia
 
 # Install IJulia kernel
-# I figured out the dierectory /opt/julia/local/share/julia by inspecting the global varaible
+# I figured out the directory /opt/julia/local/share/julia by inspecting the global varaible
 # DEPOT_PATH from within a running Julia session as a normal user, and also reading julia docs:
 #    https://pkgdocs.julialang.org/v1/glossary/
 # It was *incredibly* confusing, and the dozens of discussions of this problem that one finds
@@ -301,7 +318,7 @@ RUN ln -sf /usr/bin/yapf3 /usr/bin/yapf
 # Other pip3 packages
 # NOTE: Upgrading zmq is very important, or the Ubuntu version breaks everything..
 RUN \
-  pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq
+  pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq k3d
 
 # Commit to checkout and build.
 ARG BRANCH=master
