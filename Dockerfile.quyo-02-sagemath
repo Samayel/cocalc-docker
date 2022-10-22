@@ -19,7 +19,7 @@ RUN \
  && chown -R sage:sage /home/sage/ \
  && mkdir -p /usr/local/sage \
  && chown -R sage:sage /usr/local/sage \
- && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.6 \
+ && sudo -H -E -u sage /usr/sage-install-scripts/install_sage.sh /usr/local/ 9.7 \
  && sync \
  && /usr/sage-install-scripts/post_install_sage.sh /usr/local/ \
  && rm -rf /tmp/* \

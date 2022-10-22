@@ -1,4 +1,4 @@
-FROM quyo/cocalc-sagemath:9.6
+FROM quyo/cocalc-sagemath:9.7
 
 MAINTAINER Markus John <johm@quyo.de>
 
@@ -11,9 +11,13 @@ ENV LANGUAGE en_US:en
 ENV TERM screen
 
 
-# Important: do not try to install these directly from pypi, since usually (and strangely?)
-# what is posted to Pypi is broken.  Yes, I learned the hard way.
-RUN apt-get update && apt-get install -y python3-yaml   python3-matplotlib  python3-jupyter*  python3-ipywidgets jupyter
+# Try to install from pypi again to get better control over versions.
+# - ipywidgets<8 is because of https://github.com/sagemathinc/cocalc/issues/6128
+# - jupyter-client<7 is because of https://github.com/sagemathinc/cocalc/issues/5715
+RUN pip3 install pyyaml matplotlib jupyter jupyterlab "ipywidgets<8" "jupyter-client<7"
+
+# The python3 kernel that gets installed is broken, and we don't need it
+RUN rm -rf /usr/local/share/jupyter/kernels/python3
 
 # install the Octave kernel.
 # NOTE: we delete the spec file and use our own spec for the octave kernel, since the
@@ -23,7 +27,8 @@ RUN \
   && rm -rf /usr/local/share/jupyter/kernels/octave
 
 # Pari/GP kernel support
-# Commented out since it doesn't build anymore with newer Sage, evidently...
+# This does build fine, but I'm not sure what it produces or where or how
+# to make it available.
 # RUN sage --pip install pari_jupyter
 
 # Install LEAN proof assistant
@@ -45,7 +50,7 @@ RUN \
   && apt-get install -y aspell-*
 
 RUN \
-     wget -qO- https://deb.nodesource.com/setup_14.x | bash - \
+     wget -qO- https://deb.nodesource.com/setup_16.x | bash - \
   && apt-get install -y nodejs libxml2-dev libxslt-dev \
   && /usr/bin/npm install -g npm
 
@@ -62,7 +67,7 @@ RUN \
 #  && its --install=global
 
 # Install Julia
-ARG JULIA=1.7.3
+ARG JULIA=1.8.2
 RUN cd /tmp \
  && export ARCH1=`uname -m | sed s/x86_64/x64/` \
  && export ARCH2=`uname -m` \
@@ -76,7 +81,7 @@ RUN cd /tmp \
 RUN echo '2+3' | julia
 
 # Install IJulia kernel
-# I figured out the dierectory /opt/julia/local/share/julia by inspecting the global varaible
+# I figured out the directory /opt/julia/local/share/julia by inspecting the global varaible
 # DEPOT_PATH from within a running Julia session as a normal user, and also reading julia docs:
 #    https://pkgdocs.julialang.org/v1/glossary/
 # It was *incredibly* confusing, and the dozens of discussions of this problem that one finds
@@ -120,7 +125,7 @@ RUN \
 # VSCode code-server web application
 # See https://github.com/cdr/code-server/releases for VERSION.
 RUN \
-     export VERSION=4.4.0 \
+     export VERSION=4.7.1 \
   && export ARCH=`uname -m | sed s/aarch64/arm64/ | sed s/x86_64/amd64/` \
   && curl -fOL https://github.com/cdr/code-server/releases/download/v$VERSION/code-server_"$VERSION"_"$ARCH".deb \
   && dpkg -i code-server_"$VERSION"_"$ARCH".deb \
@@ -164,11 +169,11 @@ RUN ln -sf /usr/bin/yapf3 /usr/bin/yapf
 # Other pip3 packages
 # NOTE: Upgrading zmq is very important, or the Ubuntu version breaks everything..
 RUN \
-  pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq
+  pip3 install --upgrade --no-cache-dir  pandas plotly scipy  scikit-learn seaborn bokeh zmq k3d
 
 # Commit to checkout and build.
 ARG BRANCH=master
-ARG commit=c8a2c9acb1061631f354896f488adbdf0427c2a1
+ARG commit=1feb010459c7febe253d59fff36ca805d80f2f81
 
 # Pull latest source code for CoCalc and checkout requested commit (or HEAD),
 # install our Python libraries globally, then remove cocalc.  We only need it
@@ -222,6 +227,12 @@ RUN \
   && mv /opt/zig-* /opt/zig \
   && ln -s /opt/zig/zig /usr/local/bin
 
+# Install Quarto
+ARG QUARTO=1.1.251
+RUN \
+     curl -f -sS -L -o quarto-${QUARTO}-linux-amd64.deb https://github.com/quarto-dev/quarto-cli/releases/download/v${QUARTO}/quarto-${QUARTO}-linux-amd64.deb \
+  && dpkg -i quarto-${QUARTO}-linux-amd64.deb \
+  && rm -f quarto-${QUARTO}-linux-amd64.deb
 
 
 

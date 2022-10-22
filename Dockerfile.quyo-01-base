@@ -1,4 +1,4 @@
-FROM quyo/wolframengine:13.0.1-22.04
+FROM quyo/wolframengine:13.1.0-22.04
 
 MAINTAINER Markus John <johm@quyo.de>
 
@@ -19,76 +19,42 @@ RUN \
  && apt-get update \
  && apt-get upgrade -y \
  && apt-get install -y \
-       software-properties-common \
-       texlive \
-       texlive-latex-extra \
-       texlive-extra-utils \
-       texlive-xetex \
-       texlive-luatex \
-       texlive-bibtex-extra \
-       liblog-log4perl-perl \
-       tmux \
-       flex \
-       bison \
-       libreadline-dev \
-       htop \
-       screen \
-       pandoc \
        aspell \
-       poppler-utils \
-       net-tools \
-       wget \
-       curl \
-       git \
-       python3 \
-       python2 \
-       python3-pip \
-       make \
-       g++ \
-       sudo \
-       psmisc \
-       rsync \
-       tidy \
-       vim \
-       inetutils-ping \
-       lynx \
-       telnet \
-       git \
-       emacs \
-       subversion \
-       ssh \
-       m4 \
-       latexmk \
-       libpq5 \
-       libpq-dev \
-       build-essential \
        automake \
-       jq \
-       gfortran \
-       dpkg-dev \
-       libssl-dev \
-       imagemagick \
-       libcairo2-dev \
-       libcurl4-openssl-dev \
-       graphviz \
-       smem \
-       octave \
-       locales \
-       locales-all \
-       clang-format \
-       yapf3 \
-       golang \
-       r-cran-formatr \
-       yasm \
+       autotools-dev \
        binutils \
+       bison \
+       build-essential \
        bzip2 \
        ca-certificates \
+       chromium-browser \
+       clang-format \
+       cmake \
        curl \
+       default-jdk \
+       dnsutils \
+       dpkg-dev \
+       dvipng \
+       emacs \
+       ffmpeg \
+       flex \
+       g++ \
+       gettext \
        gfortran \
+       git \
+       golang \
        graphviz \
+       htop \
+       imagemagick \
+       inetutils-ping \
+       joe \
+       jq \
+       latexmk \
        libatomic-ops-dev \
+       libavdevice-dev \
        libboost-dev \
        libbz2-dev \
+       libcairo2-dev \
        libcurl4-openssl-dev \
        libffi-dev \
        libfile-slurp-perl \
@@ -97,14 +63,19 @@ RUN \
        libgd-dev libgmp-dev \
        libigraph-dev \
        libjson-perl \
+       liblog-log4perl-perl \
        liblzma-dev \
        libmongodb-perl \
        libmpc-dev \
        libmpfi-dev \
        libmpfr-dev \
        libncurses5-dev \
+       libopenmpi-dev \
+       libopenmpi3 \
        libpcre3-dev \
        libperl-dev \
+       libpq-dev \
+       libpq5 \
        libpython3-dev \
        libreadline-dev \
        libsqlite3-dev \
@@ -112,43 +83,66 @@ RUN \
        libsvg-perl \
        libterm-readkey-perl \
        libterm-readline-gnu-perl \
+       libtool \
        libxml-libxslt-perl \
        libxml-writer-perl \
        libxml2-dev \
        libz-dev \
        libzmq3-dev \
+       locales \
+       locales-all \
+       lynx \
        m4 \
        make \
+       mc \
+       nano \
+       net-tools \
+       octave \
        openssl \
        pandoc \
        patch \
        perl \
        pkg-config \
+       poppler-utils \
+       psmisc \
+       python-is-python3 \
+       python2 \
        python3 \
        python3-distutils \
+       python3-pip \
+       r-base \
+       r-cran-formatr \
+       rsync \
+       rustfmt \
+       screen \
+       smem \
+       software-properties-common \
        sqlite3 \
+       ssh \
+       subversion \
+       sudo \
+       tachyon \
        tar \
-       xz-utils \
-       yasm \
+       tcl \
+       telnet \
+       texinfo \
        texlive \
-       texlive-xetex \
+       texlive-bibtex-extra \
+       texlive-extra-utils \
        texlive-full \
-       latexmk \
-       dvipng \
-       default-jdk \
-       ffmpeg \
-       libavdevice-dev \
+       texlive-latex-extra \
+       texlive-luatex \
+       texlive-xetex \
+       tidy \
        tk \
        tk-dev \
-       gettext \
-       pkg-config \
-       tachyon \
-       joe \
-       nano \
-       mc \
-       dnsutils \
-       rustfmt \
-       chromium-browser \
+       tmux \
+       vim \
+       wget \
+       xz-utils \
+       yapf3 \
+       yasm \
+       zip \
  && sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' \
  && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
  && apt-get update \

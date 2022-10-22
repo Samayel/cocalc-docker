@@ -16,6 +16,7 @@ if [ -z $BRANCH ]; then
 fi
 
 N_CORES=$(cat /proc/cpuinfo | grep processor | wc -l)
+N_CORES=2
 
 export SAGE_FAT_BINARY="no"
 # Just to be sure Sage doesn't try to build its own GCC (even though
@@ -50,7 +51,7 @@ make configure
     --with-system-patch=force                   \
     --with-system-pcre=force                    \
     --with-system-pkgconf=force                 \
-    --with-system-python3=force                 \
+    --with-system-python3                       \
     --with-system-readline=force                \
     --with-system-sqlite=force                  \
     --with-system-xz=force                      \
@@ -58,7 +59,6 @@ make configure
     --with-system-zeromq=force                  \
     --with-system-zlib=force                    \
     --enable-4ti2                               \
-    --enable-barvinok                           \
     --enable-benzene                            \
     --enable-bliss                              \
     --enable-buckygen                           \
@@ -103,13 +103,11 @@ make configure
     --enable-pari_nftables                      \
     --enable-pari_seadata                       \
     --enable-plantri                            \
-    --enable-polylib                            \
     --enable-primecount                         \
     --enable-pycosat                            \
     --enable-pynormaliz                         \
     --enable-pysingular                         \
     --enable-qhull                              \
-    --enable-r_jupyter                          \
     --enable-rst2ipynb                          \
     --enable-rubiks                             \
     --enable-saclib                             \
@@ -131,11 +129,14 @@ make configure
 #   --enable-database_odlyzko_zeta              \
 #   --enable-database_stein_watkins_mini        \
 #   --enable-database_symbolic_data             \
+#   --enable-barvinok                           \
 #   --enable-gp2c                               \
 #   --enable-jupymake                           \
 #   --enable-p_group_cohomology                 \
+#   --enable-polylib                            \
 #   --enable-polytopes_db_4d                    \
 #   --enable-python_igraph                      \
+#   --enable-r_jupyter                          \
 #   --enable-scipoptsuite                       \
 #   --enable-symengine                          \
 #   --enable-symengine_py                       \
@@ -149,7 +150,7 @@ make
 ./sage -i jupyterlab
 ./sage -i nibabel
 ./sage -i nodeenv
-./sage -i ore_algebra
+# ./sage -i ore_algebra
 ./sage -i pybtex
 ./sage -i pyflakes
 # ./sage -i pygraphviz

@@ -1,11 +1,11 @@
 {
 	"argv":[
-		"\/usr\/local\/Wolfram\/WolframEngine\/13.0\/Executables\/WolframKernel",
+		"\/usr\/local\/Wolfram\/WolframEngine\/13.1\/Executables\/WolframKernel",
 		"-script",
 		"\/opt\/WolframLanguageForJupyter\/WolframLanguageForJupyter\/Resources\/KernelForWolframLanguageForJupyter.wl",
 		"{connection_file}",
 		"ScriptInstall"
 	],
-	"display_name":"Wolfram Language 13.0",
+	"display_name":"Wolfram Language 13.1",
 	"language":"Wolfram Language"
 }
