@@ -234,8 +234,17 @@ RUN \
   && dpkg -i quarto-${QUARTO}-linux-amd64.deb \
   && rm -f quarto-${QUARTO}-linux-amd64.deb
 
+# Install Nix - upgrading to a different version may need a re-extraction of /nix!
+ARG NIX=2.11.1
+RUN \
+     sh <(curl -L https://releases.nixos.org/nix/nix-${NIX}/install) --daemon \
+  && echo '[ -e $HOME/.nix-profile ] || nix run qnixpkgs#nix-setup-userscope-cocalc' >> /etc/bash.bashrc
+COPY nix/builders /etc/nix/builders
+COPY nix/nix.conf /etc/nix/nix.conf
+COPY nix/registry.json /etc/nix/registry.json
 
 
-CMD /root/run.py
+
+CMD (/root/.nix-profile/bin/nix-daemon &) && /root/run.py
 
 EXPOSE 22 80 443

@@ -177,7 +177,7 @@ def reset_project_state():
 def main():
     init_projects_path()
     self_signed_cert()
-    root_ssh_keys()
+#   root_ssh_keys()
     start_ssh()
     start_postgres()
     start_hub()

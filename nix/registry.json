@@ -1,0 +1,16 @@
+{
+  "flakes": [
+    {
+      "from": {
+        "id": "qnixpkgs",
+        "type": "indirect"
+      },
+      "to": {
+        "owner": "Samayel",
+        "repo": "qnixpkgs",
+        "type": "github"
+      }
+    }
+  ],
+  "version": 2
+}
