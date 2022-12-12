@@ -243,6 +243,10 @@ COPY nix/builders /etc/nix/builders
 COPY nix/nix.conf /etc/nix/nix.conf
 COPY nix/registry.json /etc/nix/registry.json
 
+# Update bash.bashrc
+RUN \
+     echo 'echo "Servers are available at https://cocalc.app.quyo.net/${COCALC_PROJECT_ID}/server/#PORTNUMBER#/"' >> /etc/bash.bashrc
+
 
 
 CMD (/root/.nix-profile/bin/nix-daemon &) && /root/run.py
